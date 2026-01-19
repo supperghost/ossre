@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/kernel"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/net"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/system"
+	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
 )
 
 const version = "0.1.0"
@@ -77,8 +79,21 @@ func handleRun(args []string) {
 		os.Exit(1)
 	}
 
-	// 当前仅输出占位信息，后续可扩展为结构化输出或 JSON
-	fmt.Printf("模块 %s 运行完成。诊断结果条目数: %d\n", result.Plugin, len(result.Findings))
+	// 确保空结果也序列化为 [] 而不是 null
+	if result.Findings == nil {
+		result.Findings = []models.Finding{}
+	}
+	if result.Suggestions == nil {
+		result.Suggestions = []models.Suggestion{}
+	}
+
+	data, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "序列化模块 %s 结果为 JSON 失败: %v\n", *module, err)
+		os.Exit(1)
+	}
+
+	_, _ = os.Stdout.Write(append(data, '\n'))
 }
 
 func handleVersion() {
