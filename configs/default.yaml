@@ -1,0 +1,13 @@
+# 默认配置示例（占位）
+# TODO: 根据实际诊断需求补充和调整配置结构。
+
+# 启用的诊断模块列表
+#diagnostics:
+#  enabled_modules:
+#    - kernel
+#    - io
+#    - net
+#    - system
+
+# 全局超时时间（秒）
+#timeout: 60
