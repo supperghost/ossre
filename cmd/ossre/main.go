@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"os"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/core"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/io"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/kernel"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/maxproc"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/net"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/system"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/internal/core"
+	"github.com/supperghost/ossre/internal/plugins/io"
+	"github.com/supperghost/ossre/internal/plugins/kernel"
+	"github.com/supperghost/ossre/internal/plugins/maxproc"
+	"github.com/supperghost/ossre/internal/plugins/net"
+	"github.com/supperghost/ossre/internal/plugins/system"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 const version = "0.1.0"
@@ -154,13 +154,18 @@ func usage() {
 
 选项:
   --module=<name>     指定要运行的诊断模块名称
+                      kernel 内核参数优化
+					  maxproc 最大进程数诊断
+					  io I/O 诊断
+					  net 网络诊断
+					  system 系统通用诊断
   --pid=<pid>         目标进程 PID，可选；不指定时默认使用自身 PID
   --format=<format>   输出格式，可选值: json (默认), plain (格式化文本)
 
 示例:
   %s list
   %s run --module=kernel
-  %s run --module=maxproc --pid=1
+  %s run --module=maxproc --pid=1 --format=plain
   %s run --module=kernel --format=plain
   %s version
 `, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])

@@ -3,8 +3,8 @@ package maxproc
 import (
 	"context"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/core"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/internal/core"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 // PluginName 是 maxproc 诊断插件的名称常量。

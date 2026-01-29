@@ -9,8 +9,8 @@ import (
 	"strings"
 	"syscall"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/core"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/internal/core"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 // PluginName 是内核诊断插件的名称常量。

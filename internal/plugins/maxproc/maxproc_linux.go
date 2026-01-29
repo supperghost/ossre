@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 const (

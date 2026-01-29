@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 // Runner 负责插件注册、列出和按名称运行。

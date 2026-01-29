@@ -3,7 +3,7 @@ package core
 import (
 	"context"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 // Plugin 定义了所有诊断插件需要实现的最小接口。

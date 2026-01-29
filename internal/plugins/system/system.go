@@ -3,8 +3,8 @@ package system
 import (
 	"context"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/core"
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/internal/core"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 // PluginName 是系统通用诊断插件的名称常量。

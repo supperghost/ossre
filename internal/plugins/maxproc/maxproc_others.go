@@ -6,7 +6,7 @@ package maxproc
 import (
 	"context"
 
-	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
+	"github.com/supperghost/ossre/pkg/models"
 )
 
 // runMaxprocScenario 在非 Linux 平台上提供降级实现。
