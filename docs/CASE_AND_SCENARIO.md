@@ -209,3 +209,36 @@ data, err := json.MarshalIndent(result, "", "  ")
 -   **沉淀通用采集器**：将原子化的数据采集逻辑（如读取 procfs、sysfs、执行命令）抽象到 `internal/collectors` 包中，供不同插件复用。这能让插件逻辑更聚焦于“诊断”而非“采集”。
 -   **编写测试用例**：为新增的场景和案例编写单元测试（Unit Test）或集成测试（Integration Test），确保其逻辑的正确性，并防止未来重构时引入回归问题。测试代码应放在项目根目录的 `tests/` 下。
 -   **丰富插件类型**：根据实际需求，可以引入更多维度的插件，例如针对特定应用（如 Redis、MySQL）的诊断插件。
+
+
+## 7. 模块 maxproc (进程线程创建余量)
+
+`maxproc` 模块是一个与 `kernel` 模块并列的独立诊断插件，专门用于评估指定进程（PID）的线程创建余量。它将原 `kernel.thread.headroom` 场景独立出来，便于开发者在不关心其他内核参数时，快速、专门地进行线程余量诊断。
+
+### 7.1 用途与运行方式
+
+- **用途**：评估单个进程在 `nproc`、`cgroup pids`、`kernel.threads-max`、虚拟内存/栈四个维度下的线程创建能力，找出首个瓶颈。
+- **运行方式**：
+  ```bash
+  # 评估指定 PID 的线程创建余量
+  ./ossre run --module=maxproc --pid=<PID>
+  
+  # 不指定 PID 时，默认评估 ossre 自身进程
+  ./ossre run --module=maxproc
+  ```
+- **与 `kernel.thread.headroom` 的关系**：
+  - `maxproc` 模块的实现逻辑与 `kernel` 插件中的 `thread.headroom` 场景完全相同。
+  - 它提供了一个独立的、更轻量级的入口，方便用户仅关注线程余量问题，而无需运行 `kernel` 模块中的所有其他场景。
+  - `maxproc` 模块的 Finding ID 为 `maxproc.thread.headroom`，以区别于 `kernel` 插件。
+
+### 7.2 平台兼容性
+
+- **Linux**：
+  - `maxproc` 模块在 Linux 上功能完整，能够通过 `/proc` 和 `/sys/fs/cgroup` 采集所有必要数据，并给出精确的余量估算和阻断因素。
+  - Linux 实现位于 `internal/plugins/maxproc/maxproc_linux.go`，并带有 `//go:build linux` 标签。
+- **非 Linux 平台**：
+  - 在 macOS、Windows 等非 Linux 操作系统上，由于缺少 `/proc` 和 `cgroup` 的兼容接口，`maxproc` 模块会优雅地降级。
+  - 它会返回一条 `Severity=info` 级别的 `Finding`，明确告知“当前操作系统不支持该场景”，而不会产生 `Suggestion`。
+  - 降级实现位于 `internal/plugins/maxproc/maxproc_others.go`，并带有 `//go:build !linux` 标签。
+
+这种设计保证了 `ossre` 在所有平台都能顺利编译和运行，同时为不同环境提供了清晰的能力边界说明。

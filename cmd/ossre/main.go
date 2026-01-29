@@ -10,6 +10,7 @@ import (
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/core"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/io"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/kernel"
+	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/maxproc"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/net"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/internal/plugins/system"
 	"code.byted.org/volcengine-support/shibin-code/ossre/go/pkg/models"
@@ -45,6 +46,7 @@ func newRunner() *core.Runner {
 	// TODO: 后续可从配置中动态选择启用的插件
 	plugins := []core.Plugin{
 		kernel.New(),
+		maxproc.New(),
 		io.New(),
 		net.New(),
 		system.New(),
@@ -63,6 +65,7 @@ func handleList() {
 func handleRun(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
 	module := fs.String("module", "", "要运行的诊断模块名称")
+	pid := fs.Int("pid", 0, "目标进程 PID，可选；不指定时默认使用自身 PID")
 	format := fs.String("format", "json", "输出格式: json 或 plain")
 	_ = fs.Parse(args)
 
@@ -74,6 +77,9 @@ func handleRun(args []string) {
 
 	r := newRunner()
 	ctx := context.Background()
+	if *pid > 0 {
+		ctx = context.WithValue(ctx, "ossre.pid", *pid)
+	}
 	result, err := r.Run(ctx, *module)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "运行模块 %s 失败: %v\n", *module, err)
@@ -148,12 +154,14 @@ func usage() {
 
 选项:
   --module=<name>     指定要运行的诊断模块名称
+  --pid=<pid>         目标进程 PID，可选；不指定时默认使用自身 PID
   --format=<format>   输出格式，可选值: json (默认), plain (格式化文本)
 
 示例:
   %s list
   %s run --module=kernel
+  %s run --module=maxproc --pid=1
   %s run --module=kernel --format=plain
   %s version
-`, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
+`, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
 }
