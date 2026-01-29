@@ -241,9 +241,9 @@ func runNetSysctlBaselineScenario() ([]models.Finding, []models.Suggestion) {
 			FindingID: findingID,
 			Title:     fmt.Sprintf("将内核参数 %s 调整为推荐值 %s", item.Key, item.Expected),
 			Details: fmt.Sprintf(
-				"临时生效（重启失效）：\n  sysctl -w \\%s%s %s \\n"+
+				"临时生效（重启失效）：\n  sysctl -w %s=%s\n"+
 					"持久化配置（推荐）：\n  1. 编辑 /etc/sysctl.conf，确保存在如下配置行：\n     %s = %s\n  2. 执行 sysctl -p 使配置立即生效。\n",
-				item.Key, "=", item.Expected, item.Key, item.Expected,
+				item.Key, item.Expected, item.Key, item.Expected,
 			),
 		})
 	}

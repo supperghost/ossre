@@ -63,6 +63,7 @@ func handleList() {
 func handleRun(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
 	module := fs.String("module", "", "要运行的诊断模块名称")
+	format := fs.String("format", "json", "输出格式: json 或 plain")
 	_ = fs.Parse(args)
 
 	if *module == "" {
@@ -87,13 +88,50 @@ func handleRun(args []string) {
 		result.Suggestions = []models.Suggestion{}
 	}
 
-	data, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "序列化模块 %s 结果为 JSON 失败: %v\n", *module, err)
-		os.Exit(1)
+	// 根据格式选择输出方式
+	switch *format {
+	case "plain":
+		outputPlainText(result)
+	default:
+		// 默认输出JSON格式
+		data, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "序列化模块 %s 结果为 JSON 失败: %v\n", *module, err)
+			os.Exit(1)
+		}
+		_, _ = os.Stdout.Write(append(data, '\n'))
+	}
+}
+
+// outputPlainText 以格式化文本方式输出诊断结果
+func outputPlainText(result models.Result) {
+	fmt.Printf("=== %s 诊断结果 ===\n\n", result.Plugin)
+
+	if len(result.Findings) > 0 {
+		fmt.Println("发现问题:")
+		for i, finding := range result.Findings {
+			fmt.Printf("\n%d. %s\n", i+1, finding.Title)
+			fmt.Printf("   严重程度: %s\n", finding.Severity)
+			fmt.Printf("   描述: %s\n", finding.Description)
+			if finding.Impact != "" {
+				fmt.Printf("   影响: %s\n", finding.Impact)
+			}
+		}
+		fmt.Println()
 	}
 
-	_, _ = os.Stdout.Write(append(data, '\n'))
+	if len(result.Suggestions) > 0 {
+		fmt.Println("建议:")
+		for i, suggestion := range result.Suggestions {
+			fmt.Printf("\n%d. %s\n", i+1, suggestion.Title)
+			fmt.Printf("   %s\n", suggestion.Details)
+		}
+		fmt.Println()
+	}
+
+	if len(result.Findings) == 0 && len(result.Suggestions) == 0 {
+		fmt.Println("未发现问题。")
+	}
 }
 
 func handleVersion() {
@@ -108,9 +146,14 @@ func usage() {
   run --module=<name> 运行指定诊断模块
   version             显示版本信息
 
+选项:
+  --module=<name>     指定要运行的诊断模块名称
+  --format=<format>   输出格式，可选值: json (默认), plain (格式化文本)
+
 示例:
   %s list
   %s run --module=kernel
+  %s run --module=kernel --format=plain
   %s version
-`, os.Args[0], os.Args[0], os.Args[0], os.Args[0])
+`, os.Args[0], os.Args[0], os.Args[0], os.Args[0], os.Args[0])
 }
